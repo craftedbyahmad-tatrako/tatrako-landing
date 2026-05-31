@@ -970,7 +970,7 @@
       var MSG_INVALID = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
 
       function submitToSheets(email) {
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmMimsoZxb8sEdq0ntaLpPGrH9MEsOKkiz3xg1rc1o-xUPIQwkcCIqdzz_gHZVAmmn/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwAF0W5MidvcpjAf0JwtgR7RHp2RCjwy6yFkWKvfI81YDIOtiAGUNPsVngA7VhZjau24w/exec";
         return fetch(SCRIPT_URL + "?email=" + encodeURIComponent(email), {
           method: "GET",
           mode: "no-cors"
