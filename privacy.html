@@ -185,6 +185,63 @@
     .footer-links a:hover { color: var(--accent); }
     .footer-copy { color: var(--text-muted); font-size: 0.85rem; }
 
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #185FA5; color: #ffffff;
+      padding: 14px 32px; border-radius: 12px;
+      font-weight: 600; font-size: 1rem; border: none;
+      cursor: pointer; font-family: inherit; text-decoration: none;
+      transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #1e7fd4;
+      box-shadow: 0 0 30px rgba(24, 95, 165, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .cta-section {
+      text-align: center;
+      padding: 48px 20px;
+      background: linear-gradient(135deg, rgba(24, 95, 165, 0.2) 0%, #0d1b2a 100%);
+      border-top: 1px solid rgba(24, 95, 165, 0.25);
+    }
+
+    .cta-section h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 12px; }
+    .cta-section p { color: var(--text-muted); margin-bottom: 24px; font-size: 0.95rem; }
+
+    .waitlist-form {
+      display: flex; flex-wrap: wrap; align-items: stretch;
+      gap: 10px; max-width: 480px; margin: 0 auto;
+    }
+
+    .waitlist-input {
+      flex: 1; min-width: 180px;
+      padding: 14px 18px; border-radius: 12px;
+      border: 1px solid rgba(24, 95, 165, 0.25);
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff; font-family: inherit; font-size: 0.95rem;
+    }
+
+    .waitlist-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+    .waitlist-input:focus {
+      outline: none; border-color: #185FA5;
+      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.25);
+    }
+
+    .waitlist-message { width: 100%; font-size: 0.88rem; min-height: 1.4em; }
+    .waitlist-message.success { color: #6ee7a0; }
+    .waitlist-message.error { color: #f87171; }
+    .waitlist-form.submitted .waitlist-input,
+    .waitlist-form.submitted .btn-primary { display: none; }
+
+    @media (max-width: 480px) {
+      .waitlist-form { flex-direction: column; max-width: 100%; }
+      .waitlist-form .btn-primary { width: 100%; }
+    }
+
     @media (max-width: 768px) {
       .nav-end { display: none; }
       .hamburger { display: flex; margin-inline-start: auto; }
@@ -355,6 +412,21 @@
     </div>
   </main>
 
+  <section class="cta-section">
+    <div class="container">
+      <h2><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join the Waitlist</span></h2>
+      <p><span class="ar">كن من أوائل 100 مستخدم واحصل على Pro مدى الحياة</span><span class="en">Be among the first 100 users and get Pro for life</span></p>
+      <div id="waitlist">
+        <form class="waitlist-form" novalidate>
+          <input type="email" class="waitlist-input" name="email" required autocomplete="email"
+            placeholder="you@email.com" aria-label="Email">
+          <button type="submit" class="btn-primary"><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join Waitlist</span></button>
+          <p class="waitlist-message" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <div class="footer-inner">
       <ul class="footer-links">
@@ -374,6 +446,9 @@
         document.body.dir = dir;
         localStorage.setItem('tatrako-lang', lang);
         document.body.style.opacity = '0.85';
+        document.querySelectorAll('.waitlist-input').forEach(function (el) {
+          el.placeholder = lang === 'ar' ? 'بريدك@email.com' : 'you@email.com';
+        });
         setTimeout(function () { document.body.style.opacity = '1'; }, 200);
       }
 
@@ -398,6 +473,72 @@
         link.addEventListener('click', function () {
           hamburger.classList.remove('active');
           mobileMenu.classList.remove('open');
+        });
+      });
+
+      var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmMimsoZxb8sEdq0ntaLpPGrH9MEsOKkiz3xg1rc1o-xUPIQwkcCIqdzz_gHZVAmmn/exec';
+      var MSG_SUCCESS = '<span class="ar">شكراً! سنتواصل معك قريباً 🎉</span><span class="en">Thank you! We\'ll be in touch soon 🎉</span>';
+      var MSG_ERROR = '<span class="ar">حدث خطأ، حاول مرة أخرى</span><span class="en">Something went wrong, please try again</span>';
+      var MSG_INVALID = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
+
+      function submitToSheets(email) {
+        return fetch(SHEETS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email })
+        }).then(function (res) {
+          return res.text().then(function (text) {
+            if (!res.ok) throw new Error('fail');
+            try {
+              var data = JSON.parse(text);
+              if (data.result && data.result !== 'success' && data.result !== 'ok') throw new Error('fail');
+            } catch (e) {
+              if (e.message === 'fail') throw e;
+            }
+          });
+        });
+      }
+
+      document.querySelectorAll('.waitlist-form').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var input = form.querySelector('.waitlist-input');
+          var msg = form.querySelector('.waitlist-message');
+          var btn = form.querySelector('.btn-primary');
+          var email = input.value.trim();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            msg.className = 'waitlist-message error';
+            msg.innerHTML = MSG_INVALID;
+            return;
+          }
+          btn.disabled = true;
+          input.disabled = true;
+          msg.innerHTML = '';
+          submitToSheets(email)
+            .then(function () {
+              form.classList.add('submitted');
+              msg.className = 'waitlist-message success';
+              msg.innerHTML = MSG_SUCCESS;
+            })
+            .catch(function () {
+              btn.disabled = false;
+              input.disabled = false;
+              msg.className = 'waitlist-message error';
+              msg.innerHTML = MSG_ERROR;
+            });
+        });
+      });
+
+      document.querySelectorAll('a[href="#waitlist"]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          var target = document.getElementById('waitlist');
+          if (!target) return;
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(function () {
+            var input = target.querySelector('.waitlist-input');
+            if (input && !input.disabled) input.focus();
+          }, 500);
         });
       });
     })();

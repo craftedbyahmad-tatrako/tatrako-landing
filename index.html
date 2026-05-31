@@ -257,6 +257,9 @@
     .waitlist-message.success { color: #6ee7a0; }
     .waitlist-message.error { color: #f87171; }
 
+    .waitlist-form.submitted .waitlist-input,
+    .waitlist-form.submitted .btn-primary { display: none; }
+
     .cta-section .waitlist-form {
       margin: 0 auto;
       justify-content: center;
@@ -694,12 +697,14 @@
         <h1><span class="ar">لا تفوّتك أي دفعة</span><span class="en">Never miss an Installment</span></h1>
         <p class="hero-sub"><span class="ar">📊 تتبّع — كل خططك في لوحة تحكم واحدة</span><span class="en">📊 Track — All your plans in one dashboard.</span></p>
         <p class="hero-body"><span class="ar">تتبّع وتحكّم وأحمِ تقييمك الائتماني بتطبيق بسيط يجمع كل خططك من تابي وتمارة وأي مزوّد تقسيط آخر.</span><span class="en">Track, Calculate, and protect your credit score with an easy simple app for all your Tabby, Tamara or any installments provider.</span></p>
-        <form class="waitlist-form" id="heroWaitlist" novalidate>
-          <input type="email" class="waitlist-input" name="email" required autocomplete="email"
-            placeholder="you@email.com" aria-label="Email">
-          <button type="submit" class="btn-primary"><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join Waitlist</span></button>
-          <p class="waitlist-message" role="status" aria-live="polite"></p>
-        </form>
+        <div id="waitlist">
+          <form class="waitlist-form" id="heroWaitlist" novalidate>
+            <input type="email" class="waitlist-input" name="email" required autocomplete="email"
+              placeholder="you@email.com" aria-label="Email">
+            <button type="submit" class="btn-primary"><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join Waitlist</span></button>
+            <p class="waitlist-message" role="status" aria-live="polite"></p>
+          </form>
+        </div>
         <p class="hero-urgency"><span class="ar">احصل على خطة Pro مدى الحياة، للمئة مستخدم الأوائل فقط — لا تفوّتها!</span><span class="en">Get a Pro plan for life, only for the first 100 Users, DON'T MISS it!</span></p>
       </div>
       <div class="hero-visual">
@@ -839,16 +844,11 @@
   </section>
 
   <!-- Final CTA -->
-  <section class="cta-section reveal" id="waitlist">
+  <section class="cta-section reveal">
     <div class="container">
       <h2><span class="ar">مستعد تتحكم في تقسيطاتك؟</span><span class="en">Ready to Take Control?</span></h2>
       <p><span class="ar">احصل على خطة Pro مدى الحياة، للمئة مستخدم الأوائل فقط — لا تفوّتها!</span><span class="en">Get a Pro plan for life, only for the first 100 Users, DON'T MISS it!</span></p>
-      <form class="waitlist-form" id="ctaWaitlist" novalidate>
-        <input type="email" class="waitlist-input" name="email" required autocomplete="email"
-          placeholder="you@email.com" aria-label="Email">
-        <button type="submit" class="btn-primary"><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join Waitlist</span></button>
-        <p class="waitlist-message" role="status" aria-live="polite"></p>
-      </form>
+      <a href="#waitlist" class="btn-primary waitlist-scroll"><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join Waitlist</span></a>
     </div>
   </section>
 
@@ -866,8 +866,7 @@
   <script>
     (function () {
       var LAUNCH_DATE = new Date('2026-07-01T00:00:00+03:00').getTime();
-      /* Set your Tally form URL here when ready, e.g. 'https://tally.so/r/xxxxx' */
-      var TALLY_FORM_URL = '';
+      var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmMimsoZxb8sEdq0ntaLpPGrH9MEsOKkiz3xg1rc1o-xUPIQwkcCIqdzz_gHZVAmmn/exec';
 
       /* Language */
       function setLanguage(lang) {
@@ -966,7 +965,42 @@
       /* Body fade transition on lang switch */
       document.body.style.transition = 'opacity 0.4s ease';
 
-      /* Waitlist forms */
+      /* Waitlist — Google Sheets */
+      var MSG_SUCCESS = '<span class="ar">شكراً! سنتواصل معك قريباً 🎉</span><span class="en">Thank you! We\'ll be in touch soon 🎉</span>';
+      var MSG_ERROR = '<span class="ar">حدث خطأ، حاول مرة أخرى</span><span class="en">Something went wrong, please try again</span>';
+      var MSG_INVALID = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
+
+      function submitToSheets(email) {
+        return fetch(SHEETS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email })
+        }).then(function (res) {
+          return res.text().then(function (text) {
+            if (!res.ok) throw new Error('fail');
+            try {
+              var data = JSON.parse(text);
+              if (data.result && data.result !== 'success' && data.result !== 'ok') throw new Error('fail');
+            } catch (e) {
+              if (e.message === 'fail') throw e;
+            }
+          });
+        });
+      }
+
+      function showWaitlistSuccess(form) {
+        var msg = form.querySelector('.waitlist-message');
+        form.classList.add('submitted');
+        msg.className = 'waitlist-message success';
+        msg.innerHTML = MSG_SUCCESS;
+      }
+
+      function showWaitlistError(form) {
+        var msg = form.querySelector('.waitlist-message');
+        msg.className = 'waitlist-message error';
+        msg.innerHTML = MSG_ERROR;
+      }
+
       function handleWaitlistSubmit(e) {
         e.preventDefault();
         var form = e.target;
@@ -974,33 +1008,55 @@
         var msg = form.querySelector('.waitlist-message');
         var btn = form.querySelector('.btn-primary');
         var email = input.value.trim();
-        var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-        if (!valid) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
           msg.className = 'waitlist-message error';
-          msg.innerHTML = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
+          msg.innerHTML = MSG_INVALID;
           return;
         }
 
-        if (TALLY_FORM_URL) {
-          var sep = TALLY_FORM_URL.indexOf('?') > -1 ? '&' : '?';
-          window.open(TALLY_FORM_URL + sep + 'email=' + encodeURIComponent(email), '_blank');
-        } else {
-          var list = JSON.parse(localStorage.getItem('tatrako-waitlist') || '[]');
-          if (list.indexOf(email.toLowerCase()) === -1) list.push(email.toLowerCase());
-          localStorage.setItem('tatrako-waitlist', JSON.stringify(list));
-        }
-
-        msg.className = 'waitlist-message success';
-        msg.innerHTML = '<span class="ar">شكراً! تم تسجيل بريدك — سنبلغك عند الإطلاق.</span><span class="en">Thanks! You\'re on the list — we\'ll notify you at launch.</span>';
-        input.value = '';
-        input.disabled = true;
         btn.disabled = true;
+        input.disabled = true;
+        msg.className = 'waitlist-message';
+        msg.innerHTML = '';
+
+        submitToSheets(email)
+          .then(function () { showWaitlistSuccess(form); })
+          .catch(function () {
+            btn.disabled = false;
+            input.disabled = false;
+            showWaitlistError(form);
+          });
       }
 
       document.querySelectorAll('.waitlist-form').forEach(function (form) {
         form.addEventListener('submit', handleWaitlistSubmit);
       });
+
+      document.querySelectorAll('a[href="#waitlist"]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          var target = document.getElementById('waitlist');
+          if (!target) return;
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(function () {
+            var input = target.querySelector('.waitlist-input');
+            if (input && !input.disabled) input.focus();
+          }, 500);
+        });
+      });
+
+      if (window.location.hash === '#waitlist') {
+        setTimeout(function () {
+          var target = document.getElementById('waitlist');
+          if (!target) return;
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(function () {
+            var input = target.querySelector('.waitlist-input');
+            if (input && !input.disabled) input.focus();
+          }, 500);
+        }, 300);
+      }
     })();
   </script>
 </body>
