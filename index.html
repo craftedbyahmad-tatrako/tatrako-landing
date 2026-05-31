@@ -866,7 +866,6 @@
   <script>
     (function () {
       var LAUNCH_DATE = new Date('2026-07-01T00:00:00+03:00').getTime();
-      var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmMimsoZxb8sEdq0ntaLpPGrH9MEsOKkiz3xg1rc1o-xUPIQwkcCIqdzz_gHZVAmmn/exec';
 
       /* Language */
       function setLanguage(lang) {
@@ -971,20 +970,10 @@
       var MSG_INVALID = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
 
       function submitToSheets(email) {
-        return fetch(SHEETS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
-        }).then(function (res) {
-          return res.text().then(function (text) {
-            if (!res.ok) throw new Error('fail');
-            try {
-              var data = JSON.parse(text);
-              if (data.result && data.result !== 'success' && data.result !== 'ok') throw new Error('fail');
-            } catch (e) {
-              if (e.message === 'fail') throw e;
-            }
-          });
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmMimsoZxb8sEdq0ntaLpPGrH9MEsOKkiz3xg1rc1o-xUPIQwkcCIqdzz_gHZVAmmn/exec";
+        return fetch(SCRIPT_URL + "?email=" + encodeURIComponent(email), {
+          method: "GET",
+          mode: "no-cors"
         });
       }
 
