@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tatrako — تاتراكو</title>
+  <meta name="description" content="Track, calculate, and protect your credit score. Never miss an installment with Tatrako.">
+  <link rel="icon" href="logo.png" type="image/png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #185FA5;
+      --primary-light: #1e7fd4;
+      --secondary: #1a1a2e;
+      --dark: #0d1b2a;
+      --accent: #ffffff;
+      --text-muted: rgba(255,255,255,0.65);
+      --card-bg: rgba(24, 95, 165, 0.08);
+      --border: rgba(24, 95, 165, 0.25);
+      --glow: 0 0 40px rgba(24, 95, 165, 0.35);
+      --radius: 16px;
+      --nav-h: 72px;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    html[lang="ar"] body { font-family: 'Tajawal', sans-serif; }
+    html[lang="en"] body { font-family: 'Outfit', sans-serif; }
+
+    body {
+      background: var(--secondary);
+      color: var(--accent);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    .ar, .en { transition: opacity 0.4s ease, transform 0.4s ease; }
+    html[lang="ar"] .en { display: none !important; opacity: 0; }
+    html[lang="en"] .ar { display: none !important; opacity: 0; }
+    html[lang="ar"] .ar, html[lang="en"] .en { opacity: 1; }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; display: block; }
+
+    .container {
+      width: 100%;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      transition: background var(--transition), backdrop-filter var(--transition), box-shadow var(--transition);
+    }
+
+    .navbar.scrolled {
+      background: rgba(26, 26, 46, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 20px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      line-height: 0;
+    }
+
+    .nav-logo img { height: 34px; width: auto; }
+
+    .nav-end {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-inline-start: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: color 0.25s;
+      line-height: 1;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    .lang-toggle {
+      background: rgba(24, 95, 165, 0.2);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 600;
+      transition: background 0.25s, box-shadow 0.25s;
+      font-family: inherit;
+      white-space: nowrap;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .lang-toggle:hover {
+      background: rgba(24, 95, 165, 0.4);
+      box-shadow: 0 0 16px rgba(24, 95, 165, 0.25);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: var(--nav-h);
+      left: 0;
+      right: 0;
+      background: rgba(26, 26, 46, 0.97);
+      backdrop-filter: blur(16px);
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--border);
+      z-index: 999;
+    }
+
+    .mobile-menu.open { display: block; }
+
+    .mobile-menu ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mobile-menu a {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      display: block;
+      padding: 8px 0;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--primary);
+      color: var(--accent);
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+      font-family: inherit;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-light);
+      box-shadow: 0 0 30px rgba(24, 95, 165, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Waitlist form */
+    .waitlist-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 10px;
+      max-width: 480px;
+    }
+
+    .waitlist-input {
+      flex: 1;
+      min-width: 180px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--accent);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .waitlist-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+
+    .waitlist-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.25);
+    }
+
+    .waitlist-input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .waitlist-message {
+      width: 100%;
+      font-size: 0.88rem;
+      min-height: 1.4em;
+    }
+
+    .waitlist-message.success { color: #6ee7a0; }
+    .waitlist-message.error { color: #f87171; }
+
+    .cta-section .waitlist-form {
+      margin: 0 auto;
+      justify-content: center;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: calc(var(--nav-h) + 40px) 0 80px;
+      overflow: hidden;
+    }
+
+    .hero-mesh {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(24, 95, 165, 0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(13, 27, 42, 0.8) 0%, transparent 60%),
+        linear-gradient(160deg, var(--dark) 0%, var(--secondary) 50%, #0f2040 100%);
+      z-index: 0;
+    }
+
+    .hero-mesh::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(24, 95, 165, 0.25);
+      border: 1px solid var(--border);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #7ec8ff;
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .hero-sub {
+      font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+      color: #7ec8ff;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .hero-body {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 28px;
+      max-width: 520px;
+    }
+
+    .hero-urgency {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #ffb347;
+      font-weight: 500;
+    }
+
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-icon-wrap {
+      position: relative;
+      width: 220px;
+      height: 220px;
+    }
+
+    .hero-icon-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      border-radius: 40px;
+      background: radial-gradient(circle, rgba(24, 95, 165, 0.4) 0%, transparent 70%);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    .hero-icon-wrap img {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      border-radius: 36px;
+      box-shadow: var(--glow), 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Sections */
+    section { padding: 80px 0; position: relative; }
+
+    .section-pattern::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(24, 95, 165, 0.12) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Countdown */
+    .countdown-section {
+      background: linear-gradient(180deg, var(--secondary) 0%, var(--dark) 100%);
+      padding: 60px 0;
+    }
+
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .countdown-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 16px;
+      text-align: center;
+      box-shadow: var(--glow);
+    }
+
+    .countdown-num {
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      text-shadow: 0 0 30px rgba(24, 95, 165, 0.8);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .countdown-label {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    html[lang="ar"] .countdown-label { text-transform: none; letter-spacing: 0; }
+
+    /* Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--glow);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(24, 95, 165, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* FAQ */
+    .faq-list {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--accent);
+      padding: 20px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      text-align: start;
+      font-family: inherit;
+      transition: background 0.25s;
+    }
+
+    .faq-question:hover { background: rgba(24, 95, 165, 0.1); }
+
+    .faq-icon {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(24, 95, 165, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: transform 0.35s;
+    }
+
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.4s ease;
+    }
+
+    .faq-item.open .faq-answer { max-height: 300px; }
+
+    .faq-answer-inner {
+      padding: 0 24px 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* CTA */
+    .cta-section {
+      background: linear-gradient(135deg, rgba(24, 95, 165, 0.2) 0%, var(--dark) 100%);
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 32px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      transition: color 0.25s;
+    }
+
+    .footer-links a:hover { color: var(--accent); }
+
+    .footer-copy {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero-content { grid-template-columns: 1fr; text-align: center; }
+      .hero-body { margin-left: auto; margin-right: auto; }
+      .hero-visual { order: -1; }
+      .hero-icon-wrap, .hero-icon-wrap img { width: 160px; height: 160px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .countdown-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero .waitlist-form { margin-inline: auto; justify-content: center; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-end { display: none; }
+      .hamburger { display: flex; margin-inline-start: auto; }
+      .nav-logo img { height: 30px; }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-menu { display: none !important; }
+    }
+
+    @media (max-width: 480px) {
+      .waitlist-form { flex-direction: column; max-width: 100%; }
+      .waitlist-form .btn-primary { width: 100%; }
+    }
+  </style>
+</head>
+<body dir="rtl">
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="Tatrako Home">
+        <img src="icon_with_text.png" alt="Tatrako">
+      </a>
+      <div class="nav-end">
+        <ul class="nav-links">
+          <li><a href="privacy.html"><span class="ar">سياسة الخصوصية</span><span class="en">Privacy Policy</span></a></li>
+          <li><a href="terms.html"><span class="ar">شروط الاستخدام</span><span class="en">Terms of Use</span></a></li>
+        </ul>
+        <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+          <span class="ar">EN</span>
+          <span class="en">عربي</span>
+        </button>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <ul>
+      <li><a href="privacy.html"><span class="ar">سياسة الخصوصية</span><span class="en">Privacy Policy</span></a></li>
+      <li><a href="terms.html"><span class="ar">شروط الاستخدام</span><span class="en">Terms of Use</span></a></li>
+      <li>
+        <button class="lang-toggle lang-toggle-mobile" id="langToggleMobile">
+          <span class="ar">EN</span>
+          <span class="en">عربي</span>
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="hero-mesh"></div>
+    <div class="container hero-content">
+      <div class="hero-text">
+        <span class="hero-badge"><span class="ar">قريباً</span><span class="en">Coming Soon</span></span>
+        <h1><span class="ar">لا تفوّتك أي دفعة</span><span class="en">Never miss an Installment</span></h1>
+        <p class="hero-sub"><span class="ar">📊 تتبّع — كل خططك في لوحة تحكم واحدة</span><span class="en">📊 Track — All your plans in one dashboard.</span></p>
+        <p class="hero-body"><span class="ar">تتبّع وتحكّم وأحمِ تقييمك الائتماني بتطبيق بسيط يجمع كل خططك من تابي وتمارة وأي مزوّد تقسيط آخر.</span><span class="en">Track, Calculate, and protect your credit score with an easy simple app for all your Tabby, Tamara or any installments provider.</span></p>
+        <form class="waitlist-form" id="heroWaitlist" novalidate>
+          <input type="email" class="waitlist-input" name="email" required autocomplete="email"
+            placeholder="you@email.com" aria-label="Email">
+          <button type="submit" class="btn-primary"><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join Waitlist</span></button>
+          <p class="waitlist-message" role="status" aria-live="polite"></p>
+        </form>
+        <p class="hero-urgency"><span class="ar">احصل على خطة Pro مدى الحياة، للمئة مستخدم الأوائل فقط — لا تفوّتها!</span><span class="en">Get a Pro plan for life, only for the first 100 Users, DON'T MISS it!</span></p>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-icon-wrap">
+          <img src="logo.png" alt="Tatrako App Icon">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Countdown -->
+  <section class="countdown-section section-pattern reveal" id="countdown">
+    <div class="container">
+      <div class="section-header">
+        <h2><span class="ar">العد التنازلي للإطلاق</span><span class="en">Launch Countdown</span></h2>
+        <p><span class="ar">التطبيق قادم قريباً — لا تفوّت فرصة Pro مدى الحياة</span><span class="en">The app is almost here — don't miss your chance for a lifetime Pro plan</span></p>
+      </div>
+      <div class="countdown-grid">
+        <div class="countdown-item">
+          <div class="countdown-num" id="cd-days">00</div>
+          <div class="countdown-label"><span class="ar">أيام</span><span class="en">Days</span></div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-num" id="cd-hours">00</div>
+          <div class="countdown-label"><span class="ar">ساعات</span><span class="en">Hours</span></div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-num" id="cd-minutes">00</div>
+          <div class="countdown-label"><span class="ar">دقائق</span><span class="en">Minutes</span></div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-num" id="cd-seconds">00</div>
+          <div class="countdown-label"><span class="ar">ثوان</span><span class="en">Seconds</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem -->
+  <section class="section-pattern reveal" id="problem">
+    <div class="container">
+      <div class="section-header">
+        <h2><span class="ar">المشكلة</span><span class="en">The Problem</span></h2>
+        <p><span class="ar">تستخدم تابي وتمارة. لكن هل تعرف فعلاً كم عليك؟</span><span class="en">You Use Tabby and Tamara. But Do You Know What You Actually Owe?</span></p>
+      </div>
+      <div class="cards-grid">
+        <div class="card reveal">
+          <div class="card-icon">📦</div>
+          <h3><span class="ar">تقسيطات في كل مكان</span><span class="en">Too Many Installments</span></h3>
+          <p><span class="ar">تابي هنا، تمارة هناك، سبوتي في مكان آخر. لا يوجد مكان واحد يعطيك الصورة الكاملة.</span><span class="en">Tabby here, Tamara there, Spotii somewhere else. No single place shows you the full picture.</span></p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">⚠️</div>
+          <h3><span class="ar">دفعات فائتة</span><span class="en">Missed Payments Happen</span></h3>
+          <p><span class="ar">دفعة واحدة منسية تُسجَّل في سمة — تقييمك الائتماني يتأثر، وربما لن تعرف إلا بعد فوات الأوان.</span><span class="en">One forgotten installment gets reported to SIMAH — your credit score takes the hit, and you might not even realize it until it's too late.</span></p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">🤔</div>
+          <h3><span class="ar">لا توجد طريقة للتخطيط المسبق</span><span class="en">No Way to Plan Ahead</span></h3>
+          <p><span class="ar">قبل شراء شيء بالتقسيط، كيف تعرف إذا كانت ميزانيتك تتحمّل؟ معظم الناس يخمّنون.</span><span class="en">Before you buy something on installments, how do you know if your budget can actually handle it? Most people just guess.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solution -->
+  <section class="section-pattern reveal" id="solution" style="background: linear-gradient(180deg, var(--secondary) 0%, rgba(13,27,42,0.5) 100%);">
+    <div class="container">
+      <div class="section-header">
+        <h2><span class="ar">الحل</span><span class="en">The Solution</span></h2>
+        <p><span class="ar">كل ما تحتاجه للسيطرة الكاملة على خطط تقسيطك</span><span class="en">Everything You Need to Stay In Control of Your Installment Plans</span></p>
+      </div>
+      <div class="cards-grid">
+        <div class="card reveal">
+          <div class="card-icon">📊</div>
+          <h3><span class="ar">تتبّع كل شيء في مكان واحد</span><span class="en">Track Everything in One Place</span></h3>
+          <p><span class="ar">أضف خططك من تابي وتمارة وسبوتي يدوياً في ثوانٍ. اعرف إجمالي ديونك، وتاريخ أقرب دفعة، وكل خططك النشطة في لوحة تحكم واحدة.</span><span class="en">Add your Tabby, Tamara, and Spotii plans manually in seconds. See your total debt, next payment date, and every active plan in one clean dashboard.</span></p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">🔔</div>
+          <h3><span class="ar">لا تفوّتك دفعة بعد الآن</span><span class="en">Never Miss a Payment Again</span></h3>
+          <p><span class="ar">تنبيهات ذكية قبل 3 أيام، وقبل يوم واحد، وصباح كل دفعة. تقييمك في سمة محمي دائماً.</span><span class="en">Smart reminders arrive 3 days before, 1 day before, and the morning of every payment. Your SIMAH score stays protected.</span></p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">🧮</div>
+          <h3><span class="ar">حاسبة الميزانية الذكية</span><span class="en">The Smart Budget Calculator</span></h3>
+          <p><span class="ar">قبل أن تضغط شراء — تاتراكو يخبرك إذا كان راتبك يتحمّل تقسيطاً جديداً. حكم واضح: آمن، يضيق، أو لا تضيف هذا.</span><span class="en">Before you click buy — Tatrako tells you if your salary can handle another installment. Get a clear verdict: Safe, Getting Tight, or Do Not Add This.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section-pattern reveal" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <h2><span class="ar">الأسئلة الشائعة</span><span class="en">FAQ</span></h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span><span class="ar">هل يتصل تاتراكو بحساب تابي أو تمارة مباشرة؟</span><span class="en">Does Tatrako connect to my Tabby or Tamara account directly?</span></span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner"><span class="ar">لا. تاتراكو لا يتصل بأي حساب تقسيط مباشرة. تضيف خططك يدوياً للحفاظ على خصوصيتك الكاملة. لا حاجة لتسجيل دخول لأي خدمة خارجية.</span><span class="en">No. Tatrako does not connect to any BNPL account directly. You add your plans manually to keep full privacy and control. No login to other services required.</span></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span><span class="ar">كيف يحمي تاتراكو تقييمي في سمة؟</span><span class="en">How does Tatrako protect my SIMAH score?</span></span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner"><span class="ar">عبر إرسال تنبيهات ذكية قبل 3 أيام، وقبل يوم، وصباح كل دفعة — حتى لا تفوّتك أي موعد يُسجَّل في سمة.</span><span class="en">By sending you smart payment reminders 3 days before, 1 day before, and on the morning of every payment — so you never miss a due date that gets reported to SIMAH.</span></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span><span class="ar">ماذا تفعل الحاسبة الذكية؟</span><span class="en">What does the Smart Calculator do?</span></span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner"><span class="ar">تحلل راتبك الشهري والتزامات تقسيطك الحالية، ثم تخبرك بوضوح إذا كان إضافة خطة تقسيط جديدة آمناً، أو يضيق الحال، أو خطراً يجب تجنبه.</span><span class="en">It analyzes your monthly salary and existing installment commitments, then tells you clearly whether adding a new BNPL plan is Safe, Getting Tight, or a risk to avoid.</span></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span><span class="ar">متى سيكون التطبيق متاحاً؟</span><span class="en">When will the app be available?</span></span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner"><span class="ar">نطلق قريباً جداً. انضم لقائمة الانتظار لتكون من أوائل 100 مستخدم وتحصل على خطة Pro مدى الحياة.</span><span class="en">We're launching very soon. Join the waitlist to be among the first 100 users and get a Pro plan for life.</span></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span><span class="ar">هل يعمل للمقيمين الأجانب؟</span><span class="en">Does it work for expats?</span></span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer"><div class="faq-answer-inner"><span class="ar">نعم. تاتراكو يعمل لأي شخص في منطقة الخليج يستخدم خدمات التقسيط مثل تابي وتمارة وسبوتي — سواء كان مواطناً أو مقيماً.</span><span class="en">Yes. Tatrako works for anyone in the Gulf region using BNPL services like Tabby, Tamara, or Spotii — Saudi nationals and expats alike.</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="cta-section reveal" id="waitlist">
+    <div class="container">
+      <h2><span class="ar">مستعد تتحكم في تقسيطاتك؟</span><span class="en">Ready to Take Control?</span></h2>
+      <p><span class="ar">احصل على خطة Pro مدى الحياة، للمئة مستخدم الأوائل فقط — لا تفوّتها!</span><span class="en">Get a Pro plan for life, only for the first 100 Users, DON'T MISS it!</span></p>
+      <form class="waitlist-form" id="ctaWaitlist" novalidate>
+        <input type="email" class="waitlist-input" name="email" required autocomplete="email"
+          placeholder="you@email.com" aria-label="Email">
+        <button type="submit" class="btn-primary"><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join Waitlist</span></button>
+        <p class="waitlist-message" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-inner">
+      <ul class="footer-links">
+        <li><a href="privacy.html"><span class="ar">سياسة الخصوصية</span><span class="en">Privacy Policy</span></a></li>
+        <li><a href="terms.html"><span class="ar">شروط الاستخدام</span><span class="en">Terms of Use</span></a></li>
+      </ul>
+      <p class="footer-copy"><span class="ar">© تاتراكو - 2026</span><span class="en">© Tatrako - 2026</span></p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var LAUNCH_DATE = new Date('2026-07-01T00:00:00+03:00').getTime();
+      /* Set your Tally form URL here when ready, e.g. 'https://tally.so/r/xxxxx' */
+      var TALLY_FORM_URL = '';
+
+      /* Language */
+      function setLanguage(lang) {
+        var dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+        document.documentElement.dir = dir;
+        document.body.dir = dir;
+        localStorage.setItem('tatrako-lang', lang);
+        document.body.style.opacity = '0.85';
+        document.querySelectorAll('.waitlist-input').forEach(function (el) {
+          el.placeholder = lang === 'ar' ? 'بريدك@email.com' : 'you@email.com';
+        });
+        setTimeout(function () { document.body.style.opacity = '1'; }, 200);
+      }
+
+      var saved = localStorage.getItem('tatrako-lang') || 'ar';
+      setLanguage(saved);
+
+      function toggleLang() {
+        var current = document.documentElement.lang;
+        setLanguage(current === 'ar' ? 'en' : 'ar');
+      }
+
+      document.getElementById('langToggle').addEventListener('click', toggleLang);
+      var mobileToggle = document.getElementById('langToggleMobile');
+      if (mobileToggle) mobileToggle.addEventListener('click', toggleLang);
+
+      /* Navbar scroll */
+      var navbar = document.getElementById('navbar');
+      window.addEventListener('scroll', function () {
+        navbar.classList.toggle('scrolled', window.scrollY > 20);
+      });
+
+      /* Hamburger */
+      var hamburger = document.getElementById('hamburger');
+      var mobileMenu = document.getElementById('mobileMenu');
+      hamburger.addEventListener('click', function () {
+        hamburger.classList.toggle('active');
+        mobileMenu.classList.toggle('open');
+      });
+      mobileMenu.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          hamburger.classList.remove('active');
+          mobileMenu.classList.remove('open');
+        });
+      });
+
+      /* Countdown */
+      function pad(n) { return String(n).padStart(2, '0'); }
+
+      function updateCountdown() {
+        var now = Date.now();
+        var diff = Math.max(0, LAUNCH_DATE - now);
+        var days = Math.floor(diff / 86400000);
+        var hours = Math.floor((diff % 86400000) / 3600000);
+        var minutes = Math.floor((diff % 3600000) / 60000);
+        var seconds = Math.floor((diff % 60000) / 1000);
+        document.getElementById('cd-days').textContent = pad(days);
+        document.getElementById('cd-hours').textContent = pad(hours);
+        document.getElementById('cd-minutes').textContent = pad(minutes);
+        document.getElementById('cd-seconds').textContent = pad(seconds);
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      /* Scroll reveal */
+      var reveals = document.querySelectorAll('.reveal');
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+      reveals.forEach(function (el) { observer.observe(el); });
+
+      /* FAQ accordion */
+      document.querySelectorAll('.faq-item').forEach(function (item) {
+        var btn = item.querySelector('.faq-question');
+        btn.addEventListener('click', function () {
+          var isOpen = item.classList.contains('open');
+          document.querySelectorAll('.faq-item').forEach(function (i) {
+            i.classList.remove('open');
+            i.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+          });
+          if (!isOpen) {
+            item.classList.add('open');
+            btn.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      /* Body fade transition on lang switch */
+      document.body.style.transition = 'opacity 0.4s ease';
+
+      /* Waitlist forms */
+      function handleWaitlistSubmit(e) {
+        e.preventDefault();
+        var form = e.target;
+        var input = form.querySelector('.waitlist-input');
+        var msg = form.querySelector('.waitlist-message');
+        var btn = form.querySelector('.btn-primary');
+        var email = input.value.trim();
+        var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+        if (!valid) {
+          msg.className = 'waitlist-message error';
+          msg.innerHTML = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
+          return;
+        }
+
+        if (TALLY_FORM_URL) {
+          var sep = TALLY_FORM_URL.indexOf('?') > -1 ? '&' : '?';
+          window.open(TALLY_FORM_URL + sep + 'email=' + encodeURIComponent(email), '_blank');
+        } else {
+          var list = JSON.parse(localStorage.getItem('tatrako-waitlist') || '[]');
+          if (list.indexOf(email.toLowerCase()) === -1) list.push(email.toLowerCase());
+          localStorage.setItem('tatrako-waitlist', JSON.stringify(list));
+        }
+
+        msg.className = 'waitlist-message success';
+        msg.innerHTML = '<span class="ar">شكراً! تم تسجيل بريدك — سنبلغك عند الإطلاق.</span><span class="en">Thanks! You\'re on the list — we\'ll notify you at launch.</span>';
+        input.value = '';
+        input.disabled = true;
+        btn.disabled = true;
+      }
+
+      document.querySelectorAll('.waitlist-form').forEach(function (form) {
+        form.addEventListener('submit', handleWaitlistSubmit);
+      });
+    })();
+  </script>
+</body>
+</html>
