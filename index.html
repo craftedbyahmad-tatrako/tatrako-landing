@@ -964,16 +964,28 @@
       /* Body fade transition on lang switch */
       document.body.style.transition = 'opacity 0.4s ease';
 
-      /* Waitlist — Google Sheets */
+      /* Waitlist — FormSubmit */
       var MSG_SUCCESS = '<span class="ar">شكراً! سنتواصل معك قريباً 🎉</span><span class="en">Thank you! We\'ll be in touch soon 🎉</span>';
       var MSG_ERROR = '<span class="ar">حدث خطأ، حاول مرة أخرى</span><span class="en">Something went wrong, please try again</span>';
       var MSG_INVALID = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
 
-      function submitToSheets(email) {
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwAF0W5MidvcpjAf0JwtgR7RHp2RCjwy6yFkWKvfI81YDIOtiAGUNPsVngA7VhZjau24w/exec";
-        return fetch(SCRIPT_URL + "?email=" + encodeURIComponent(email), {
-          method: "GET",
-          mode: "no-cors"
+      function submitWaitlist(emailValue) {
+        return fetch("https://formsubmit.co/ajax/waitlist@tatrako.com", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            email: emailValue,
+            _subject: "New Tatrako Waitlist Signup",
+            _captcha: "false"
+          })
+        })
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (!data.success) throw new Error('fail');
+          return data;
         });
       }
 
@@ -1009,7 +1021,7 @@
         msg.className = 'waitlist-message';
         msg.innerHTML = '';
 
-        submitToSheets(email)
+        submitWaitlist(email)
           .then(function () { showWaitlistSuccess(form); })
           .catch(function () {
             btn.disabled = false;
