@@ -698,8 +698,10 @@
         <p class="hero-sub"><span class="ar">📊 تتبّع — كل خططك في لوحة تحكم واحدة</span><span class="en">📊 Track — All your plans in one dashboard.</span></p>
         <p class="hero-body"><span class="ar">تتبّع وتحكّم وأحمِ تقييمك الائتماني بتطبيق بسيط يجمع كل خططك من تابي وتمارة وأي مزوّد تقسيط آخر.</span><span class="en">Track, Calculate, and protect your credit score with an easy simple app for all your Tabby, Tamara or any installments provider.</span></p>
         <div id="waitlist">
-          <form class="waitlist-form" id="heroWaitlist" novalidate>
+          <form class="waitlist-form" id="heroWaitlist" action="https://formsubmit.co/dc060dc9be3c1e1618cb8384bf76438e" method="POST" novalidate>
             <input type="text" name="_honey" style="display:none">
+            <input type="hidden" name="_subject" value="New Tatrako Waitlist Signup">
+            <input type="hidden" name="_captcha" value="false">
             <input type="email" class="waitlist-input" name="email" required autocomplete="email"
               placeholder="you@email.com" aria-label="Email">
             <button type="submit" class="btn-primary"><span class="ar">انضم لقائمة الانتظار</span><span class="en">Join Waitlist</span></button>
@@ -970,8 +972,12 @@
       var MSG_ERROR = '<span class="ar">حدث خطأ، حاول مرة أخرى</span><span class="en">Something went wrong, please try again</span>';
       var MSG_INVALID = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
 
-      function submitWaitlist(emailValue, honeyValue) {
-        return fetch("https://formsubmit.co/ajax/dc060dc9be3c1e1618cb8384bf76438e", {
+      function submitWaitlist(form, emailValue, honeyValue) {
+        var ajaxUrl = form.getAttribute('action').replace(
+          'https://formsubmit.co/',
+          'https://formsubmit.co/ajax/'
+        );
+        return fetch(ajaxUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1026,7 +1032,7 @@
         msg.className = 'waitlist-message';
         msg.innerHTML = '';
 
-        submitWaitlist(email, honey ? honey.value : '')
+        submitWaitlist(form, email, honey ? honey.value : '')
           .then(function () { showWaitlistSuccess(form); })
           .catch(function () {
             btn.disabled = false;
