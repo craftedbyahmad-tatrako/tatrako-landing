@@ -469,22 +469,18 @@
       var MSG_ERROR = '<span class="ar">حدث خطأ، حاول مرة أخرى</span><span class="en">Something went wrong, please try again</span>';
       var MSG_INVALID = '<span class="ar">يرجى إدخال بريد إلكتروني صحيح</span><span class="en">Please enter a valid email address</span>';
 
-      function submitWaitlist(form, emailValue, honeyValue) {
-        var ajaxUrl = form.getAttribute('action').replace(
-          'https://formsubmit.co/',
-          'https://formsubmit.co/ajax/'
-        );
-        return fetch(ajaxUrl, {
+      function submitWaitlist(emailValue, honeyValue) {
+        return fetch("https://api.web3forms.com/submit", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
           body: JSON.stringify({
+            access_key: "ad7a011c-b971-49d8-a61f-3f428972e5e9",
             email: emailValue,
-            _honey: honeyValue || "",
-            _subject: "New Tatrako Waitlist Signup",
-            _captcha: "false"
+            botcheck: honeyValue || "",
+            subject: "New Tatrako Waitlist Signup"
           })
         })
         .then(function (response) { return response.json(); })
@@ -511,7 +507,7 @@
           btn.disabled = true;
           input.disabled = true;
           msg.innerHTML = '';
-          submitWaitlist(form, email, honey ? honey.value : '')
+          submitWaitlist(email, honey ? honey.value : '')
             .then(function () {
               form.classList.add('submitted');
               msg.className = 'waitlist-message success';
